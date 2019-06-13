@@ -15,7 +15,7 @@ class PostsController < ApplicationController
     if !search_param.nil? && search_param.present?
       @posts = PostSearchService.search(@posts, search_param)
     end
-    render json: @posts, status: :ok
+    render json: @posts.includes(:user), status: :ok
   end
   
   #GET /posts/{id}

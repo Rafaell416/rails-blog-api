@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'byebug'
 
 RSpec.describe 'Posts', type: :request do
   describe 'GET /posts' do 
