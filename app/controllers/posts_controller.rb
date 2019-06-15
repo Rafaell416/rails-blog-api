@@ -1,11 +1,16 @@
 require 'byebug'
 class PostsController < ApplicationController 
-
+  include Secured
+  
   before_action :authenticate_user!, only: [:create, :update]
 
   rescue_from Exception do |e|
     render json: { error: e.message }, status: :internal_error 
   end 
+
+  rescue_from ActiveRecord::RecordNotFound do |e|
+    render json: { error: e.message }, status: :not_found
+  end
 
   rescue_from ActiveRecord::RecordInvalid do |e|
     render json: { error: e.message }, status: :unprocessable_entity
@@ -52,22 +57,5 @@ class PostsController < ApplicationController
 
   def update_params
     params.require(:post).permit(:title, :content, :published)
-  end
-
-  def authenticate_user!
-    # read auth header
-    token_regex = /Bearer (\w+)/
-    headers = request.headers
-    # check if  auth header is valid
-    if headers['Authorization'].present? && headers['Authorization'].match(token_regex)
-      token = headers['Authorization'].match(token_regex)[1]
-      # check if token is realted to a user
-      if ( Current.user = User.find_by_auth_token(token) ) 
-        return 
-      end
-
-    end
-
-    render json: { error: 'Unauthorized', status: :unauthorized }
   end
 end
